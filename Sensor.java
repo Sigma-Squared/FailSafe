@@ -14,4 +14,8 @@ public class Sensor
 	{
 		this.active = true;
 	}
+	public boolean isActive ()
+	{
+		return active;
+	}
 }
