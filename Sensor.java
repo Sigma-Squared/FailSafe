@@ -6,8 +6,12 @@ public class Sensor
 	{
 		this.active = true;
 	}
-	protected void disabled ()
+	protected void disable ()
 	{
 		this.active = false;
+	}
+	protected void activate ()
+	{
+		this.active = true;
 	}
 }

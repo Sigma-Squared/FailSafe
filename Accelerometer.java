@@ -1,10 +1,19 @@
 public class Accelerometer extends Sensor
 {
-	float accel;
-	public Accelerometer ()
+	protected float accel, accelLimit;
+	public Accelerometer (float lim)
 	{
 		super();
 		accel = 0;
+		accelLimit = lim;
+	}
+	public void setAccelLim (float lim)
+	{
+		accelLimit = lim;
+	}
+	public float getAccelLim ()
+	{
+		return accelLimit;
 	}
 	public float getAccel()
 	{

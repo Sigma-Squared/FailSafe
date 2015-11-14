@@ -1,6 +1,6 @@
 public class ComboSensor extends Sensor
 {
-	float RPM,speedMin;
+	protected float RPM,speedMin;
 	public ComboSensor (float speedMin)
 	{
 		super();
@@ -10,6 +10,10 @@ public class ComboSensor extends Sensor
 	public float getRPM ()
 	{
 		return RPM;
+	}
+	public float getLim ()
+	{
+		return speedMin;
 	}
 	public void changeMin (float speedMin)
 	{

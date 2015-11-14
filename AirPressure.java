@@ -1,6 +1,6 @@
 public class AirPressure extends Sensor
 {
-	float airP; //stored in atm
+	protected float airP; //stored in atm
 	public AirPressure ()
 	{
 		super();

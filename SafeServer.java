@@ -1,19 +1,17 @@
-package safepackage;
-
 import java.io.*;
 import java.net.*;
 
 public class SafeServer {
 	
-	private ObjectOutputStream outStream;
-    private ObjectInputStream inStream;
-    private ServerSocket serverSocket;
-    private Socket socket;
+	private static ObjectOutputStream outStream;
+    private static ObjectInputStream inStream;
+    private static ServerSocket serverSocket;
+    private static Socket socket;
     
-    private final int PORT = 6969;
-    private final String AUTH_MSG = "M3C2015";
+    private static final int PORT = 6969;
+    private static final String AUTH_MSG = "M3C2015";
     
-    public boolean authenticated;
+    public static boolean authenticated;
 
 	public SafeServer() {
 		byte errorCode = 0;
@@ -47,7 +45,7 @@ public class SafeServer {
 		}
 	}
 	
-	private void initServer() throws IOException{
+	private static void initServer() throws IOException{
 		System.out.println("Opening server port " + PORT);
 		serverSocket = new ServerSocket(PORT);
 		System.out.println("Awaiting connection...");
@@ -55,20 +53,20 @@ public class SafeServer {
 		System.out.println("Connection established");
 	}
 	
-	private void establishStreams() throws IOException {
+	private static void establishStreams() throws IOException {
 		System.out.println("Enabling output steam");
 		outStream = new ObjectOutputStream(socket.getOutputStream()); 
 		System.out.println("Enabling input steam");
 		inStream = new ObjectInputStream(socket.getInputStream()); 
 	}
 	
-	private void authenticate() throws IOException, ClassNotFoundException {
+	private static void authenticate() throws IOException, ClassNotFoundException {
 		String datum = (String) inStream.readObject();
 		System.out.println("Authentication: " +  datum);
 		authenticated = datum.equals(AUTH_MSG);
 	}
 	
-	public String receiveFromDevice() throws IOException, ClassNotFoundException {
+	public static String receiveFromDevice()  {
 	    try {
 	    	String datum = (String) inStream.readObject();
 	    	System.out.println("Receiving: " +  datum);
@@ -79,7 +77,7 @@ public class SafeServer {
 	    }
 	}
 	
-	public void sendToDevice(String message) throws IOException{
+	public static void sendToDevice(String message) {
 		try {
 			System.out.println("Transferring: " + message);
 			outStream.writeObject(message);
@@ -89,7 +87,7 @@ public class SafeServer {
 		}
 	}
 	
-	public void terminateConnections() {
+	public static void terminateConnections() {
 		try {
 			inStream.close();
         	outStream.close();

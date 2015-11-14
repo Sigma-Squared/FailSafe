@@ -1,6 +1,6 @@
 public class Humidity extends Sensor
 {
-	float hum; // percent water
+	protected float hum; // percent water
 	public Humidity ()
 	{
 		super();
