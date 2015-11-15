@@ -21,6 +21,7 @@ public class Safe
 		electronicLock = false;
 		physicalLock = false;
 		moving = false;
+		pluggedIn = true;
 		tempChange = 0;
 		tempIn = therm.getIntTemp();
 		tempExt = therm.getExtTemp();
@@ -50,7 +51,7 @@ public class Safe
 			}
 			batteryLevel--;
 		}
-		if (tempIn != therm.getIntTemp())
+		if (tempIn != therm.getIntTemp() && therm.isActive())
 		{
 			if (tempInSent==false)
 			{
@@ -59,7 +60,7 @@ public class Safe
 			}
 			tempIn = therm.getIntTemp();
 		}
-		if (tempExt != therm.getIntTemp())
+		if (tempExt != therm.getIntTemp() && therm.isActive())
 		{
 			tempChange = tempExt - therm.getExtTemp();
 			recentTemp [cycleCnt] = Math.abs(tempChange);
@@ -78,7 +79,7 @@ public class Safe
 			}
 			tempExt = therm.getExtTemp();
 		}
-		if (accel.getAccel() > Math.abs(accel.getAccelLim()) || accel.getAccel()< -1*Math.abs(accel.getAccelLim()))
+		if (accel.getAccel() > Math.abs(accel.getAccelLim()) || accel.getAccel()< -1*Math.abs(accel.getAccelLim()) && accel.isActive())
 		{
 			if (accelSent==false)
 			{
@@ -86,7 +87,7 @@ public class Safe
 				accelSent = true;
 			}
 		}
-		if (combo.getRPM() < combo.getLim())
+		if (combo.getRPM() < combo.getLim() && combo.isActive())
 		{
 			if (RPMSent == false)
 			{
@@ -94,7 +95,7 @@ public class Safe
 				RPMSent = true;
 			}
 		}
-		if (hum != humSensor.getHum())
+		if (hum != humSensor.getHum() && humSensor.isActive())
 		{
 			if (humSent == false)
 			{
@@ -103,7 +104,7 @@ public class Safe
 			}
 			hum = humSensor.getHum ();
 		}
-		if (airP != airPSensor.getAirPressure())
+		if (airP != airPSensor.getAirPressure()&& airPSensor.isActive())
 		{
 			if (airPSent == false)
 			{
@@ -111,7 +112,7 @@ public class Safe
 				airPSent = true;
 			}
 		}
-		if (longi != gps.getLongi() || lat !=gps.getLat())
+		if (longi != gps.getLongi() || lat !=gps.getLat()&& gps.isActive())
 		{
 			if (moved == false)
 			{
@@ -119,7 +120,7 @@ public class Safe
 				moved = true;
 			}
 		}
-		if (currentWeight != scale.getWeight() && accel.getAccel()==0)
+		if (currentWeight != scale.getWeight() && accel.getAccel()==0 && scale.isActive())
 		{
 			if (currentWeight > scale.getWeight())
 			{
@@ -152,7 +153,7 @@ public class Safe
 			if (airPSensorSent==false)
 			{
 				SafeServer.sendToDevice("WARN:Air Pressure Sensor Offline");
-				thermSent=true;
+				airPSensorSent=true;
 			}
 		}
 		if (!humSensor.isActive())
@@ -160,7 +161,7 @@ public class Safe
 			if (humSensorSent==false)
 			{
 				SafeServer.sendToDevice("WARN:Humidity Sensor Offline");
-				thermSent=true;
+				humSensorSent=true;
 			}
 		}
 		if (!combo.isActive())
@@ -168,7 +169,7 @@ public class Safe
 			if (comboSent==false)
 			{
 				SafeServer.sendToDevice("WARN:Combination Lock Sensor Offline");
-				thermSent=true;
+				comboSent=true;
 			}
 		}
 		if (!scale.isActive())
@@ -176,7 +177,7 @@ public class Safe
 			if (scaleSent==false)
 			{
 				SafeServer.sendToDevice("WARN:Internal Scale is Offline");
-				thermSent=true;
+				scaleSent=true;
 			}
 		}
 		if (!accel.isActive())
@@ -184,7 +185,7 @@ public class Safe
 			if (accelSensorSent==false)
 			{
 				SafeServer.sendToDevice("WARN:Accelerometer Offline");
-				thermSent=true;
+				accelSensorSent=true;
 			}
 		}
 		cycleCnt++;
@@ -193,17 +194,30 @@ public class Safe
 			cycleCnt=0;
 		}
 	}
-	public void initiateLockDown ()
+	public void electricalUnlock ()
+	{
+		if (lockdown == false)
+		{
+			electronicLock = true;
+		}
+	}
+	public void initiateLockdown ()
 	{
 		lockdown = true;
 		electronicLock = false;
 		physicalLock = false;
+		SafeServer.sendToDevice("WARN:Lockdown Initiated");
+
+	}
+	public void endLockdown ()
+	{
+		lockdown = false;
 	}
 	public void incinerateContents()
 	{
 		if (open == false)
 		{
-		therm.setIntTemp(666);
+			therm.setIntTemp(666);
 		}
 		else
 		{
@@ -212,7 +226,7 @@ public class Safe
 	}
 	public void physicalUnlock ()
 	{
-		physicalLock = false;
+		physicalLock = true;
 	}
 	public void lostConnection ()
 	{

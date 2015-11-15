@@ -1,4 +1,4 @@
-public class GPS 
+public class GPS extends Sensor
 {
 	float longi,lat;
 	public GPS ()
