@@ -14,7 +14,7 @@ public class Safe
 	Thermometer therm = new Thermometer();
 	AirPressure airPSensor = new AirPressure();
 	Humidity humSensor = new Humidity();
-	ComboSensor combo = new ComboSensor(0);
+	ComboSensor combo = new ComboSensor(0.3f);
 	Scale scale = new Scale(10);
 	Accelerometer accel = new Accelerometer(0.3f);
 
@@ -69,19 +69,19 @@ public class Safe
 			{
 				if (full == true)
 				{
-					SafeServer.sendToDevice ("Warning: The safe has been unplugged\n" + batteryLevel/3600 + " hours left");
+					System.err.println ("Warning: The safe has been unplugged\n" + batteryLevel/3600 + " hours left");
 				}
 				pluggedInSent = true;
 			}
 			batteryLevel--;
 		}
-		if (tempIn != therm.getIntTemp() && therm.isActive())
+		if (tempIn != therm.getExtTemp() && therm.isActive())
 		{
 			if (tempInSent==false)
 			{
 				if (full == true)
 				{
-					SafeServer.sendToDevice("Warning: Change in internal temperature.");
+					System.err.println("Warning: Change in internal temperature.");
 				}
 				tempInSent = true;
 			}
@@ -102,7 +102,7 @@ public class Safe
 				{
 					if (full == true)
 					{
-					SafeServer.sendToDevice("Warning: Abnormal external temperature influx.");
+					System.err.println("Warning: Abnormal external temperature influx.");
 					}
 					tempExtSent = true;
 				}
@@ -115,18 +115,18 @@ public class Safe
 			{
 				if (full == true)
 				{
-				SafeServer.sendToDevice("Warning: Safe is being handled.");
+				System.err.println("Warning: Safe is being handled.");
 				}
 				accelSent = true;
 			}
 		}
-		if (combo.getRPM() < combo.getLim() && combo.isActive())
+		if (combo.getRPM() < combo.getLim() && combo.getRPM() != 0 && combo.isActive())
 		{
 			if (RPMSent == false)
 			{
 				if (full == true)
 				{
-				SafeServer.sendToDevice ("Warning: Physical unlock taking longer than normal.");
+				System.err.println ("Warning: Physical unlock taking longer than normal.");
 				}
 				RPMSent = true;
 			}
@@ -137,7 +137,7 @@ public class Safe
 			{
 				if (full == true)
 				{
-				SafeServer.sendToDevice ("Warning: Safe humidity has changed.");
+				System.err.println ("Warning: Safe humidity has changed.");
 				}
 				humSent = true;
 			}
@@ -149,7 +149,7 @@ public class Safe
 			{
 				if (full == true)
 				{
-				SafeServer.sendToDevice ("Warning: Internal air pressure has changed");
+				System.err.println ("Warning: Internal air pressure has changed");
 				}
 				airPSent = true;
 			}
@@ -160,7 +160,7 @@ public class Safe
 			{
 				if (full == true)
 				{
-				SafeServer.sendToDevice ("Warning: The safe has been moved");
+				System.err.println ("Warning: The safe has been moved");
 				}
 				moved = true;
 			}
@@ -173,7 +173,7 @@ public class Safe
 				{
 					if (full == true)
 					{
-					SafeServer.sendToDevice("Warning: Contents have been added to the safe.");
+					System.err.println("Warning: Contents have been added to the safe.");
 					}
 					currentWeightSent = true;
 				}
@@ -184,7 +184,7 @@ public class Safe
 				{
 					if (full == true)
 					{
-					SafeServer.sendToDevice("Warning: Contents have been removed from the safe.");
+					System.err.println("Warning: Contents have been removed from the safe.");
 					}
 					currentWeightSent = true;
 				}
@@ -197,7 +197,7 @@ public class Safe
 			{
 				if (full == true)
 				{
-				SafeServer.sendToDevice("Warning: Thermometer Offline");
+				System.err.println("Warning: Thermometer Offline");
 				}
 				thermSent=true;
 			}
@@ -208,7 +208,7 @@ public class Safe
 			{
 				if (full == true)
 				{
-				SafeServer.sendToDevice("Warning: Air Pressure Sensor Offline");
+				System.err.println("Warning: Air Pressure Sensor Offline");
 				}
 				airPSensorSent=true;
 			}
@@ -219,7 +219,7 @@ public class Safe
 			{
 				if (full == true)
 				{
-				SafeServer.sendToDevice("Warning: Humidity Sensor Offline");
+				System.err.println("Warning: Humidity Sensor Offline");
 				}
 				humSensorSent=true;
 			}
@@ -230,7 +230,7 @@ public class Safe
 			{
 				if (full == true)
 				{
-				SafeServer.sendToDevice("Warning: Combination Lock Sensor Offline");
+				System.err.println("Warning: Combination Lock Sensor Offline");
 				}
 				comboSent=true;
 			}
@@ -241,7 +241,7 @@ public class Safe
 			{
 				if (full == true)
 				{
-				SafeServer.sendToDevice("Warning: Internal Scale is Offline");
+				System.err.println("Warning: Internal Scale is Offline");
 				}
 				scaleSent=true;
 			}
@@ -252,7 +252,7 @@ public class Safe
 			{
 				if (full == true)
 				{
-				SafeServer.sendToDevice("Warning: Accelerometer Offline");
+				System.err.println("Warning: Accelerometer Offline");
 				}
 				accelSensorSent=true;
 			}
@@ -263,7 +263,7 @@ public class Safe
 			{
 				if (full == true)
 				{
-				SafeServer.sendToDevice("Warning: GPS Offline");
+				System.err.println("Warning: GPS Offline");
 				}
 				gpsSent = true;
 			}
@@ -289,7 +289,7 @@ public class Safe
 		lockdown = true;
 		electronicLock = true;
 		physicalLock = true;
-		SafeServer.sendToDevice("Warning: Lockdown Initiated");
+		System.err.println("Warning: Lockdown Initiated");
 	}
 	public void endLockdown ()
 	{
@@ -305,7 +305,7 @@ public class Safe
 		{
 			if (full == true)
 			{
-			SafeServer.sendToDevice ("Warning: Can not initiate incineration while safe is open.");
+			System.err.println ("Warning: Can not initiate incineration while safe is open.");
 			}
 		}
 	}
@@ -367,7 +367,7 @@ public class Safe
 			open = true;
 			if (full == true || secure == true)
 			{
-			SafeServer.sendToDevice("Warning: The Safe has been opened.");
+			System.err.println("Warning: The Safe has been opened.");
 			}
 		}
 	}

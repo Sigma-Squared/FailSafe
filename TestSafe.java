@@ -48,7 +48,7 @@ public class TestSafe extends Applet implements ActionListener {
        
         (new Thread() {
         	  public void run() {
-        		  SafeServer.initSafeServer();
+        		  //SafeServer.initSafeServer();
         		  System.out.println("Connection success");
  		  
         		  testSafeLoop();

@@ -104,17 +104,35 @@ public class SafeServer {
 				} else if (datum.substring(0, 2).equals("GV")) {
 					int value = Integer.parseInt(datum.substring(2));
 					if (value == 1){
-						sendToDevice("Int. Temp: " + String.valueOf(safe.therm.getIntTemp()));
+						if (!safe.therm.isActive())
+							sendToDevice("<Sensor Offline>");
+						else
+							sendToDevice("Int. Temp: " + String.valueOf(safe.therm.getIntTemp()));
 					} else if (value == 4){
+						if (!safe.therm.isActive())
+							sendToDevice("<Sensor Offline>");
+						else
 						sendToDevice("Ext. Temp: " + String.valueOf(safe.therm.getExtTemp()));
 					} else if (value == 2){
+						if (!safe.airPSensor.isActive())
+							sendToDevice("<Sensor Offline>");
+						else
 						sendToDevice("Pressure: " + String.valueOf(safe.airPSensor.getAirPressure()));
 					} else if (value == 3){
+						if (!safe.humSensor.isActive())
+							sendToDevice("<Sensor Offline>");
+						else
 						sendToDevice("Humidity: " + String.valueOf(safe.humSensor.getHum()));
 					} else if (value == 5){
-						sendToDevice("Weight: " + String.valueOf(safe.scale.getWeight()));
+						if (!safe.scale.isActive())
+							sendToDevice("<Sensor Offline>");
+						else
+							sendToDevice("Weight: " + String.valueOf(safe.scale.getWeight()));
 					} else if (value == 6){
-						sendToDevice("GPS: " + String.valueOf(safe.gps.getLongi()) + ", " + String.valueOf(safe.gps.getLat()));
+						if (!safe.gps.isActive())
+							sendToDevice("<Sensor Offline>");
+						else
+							sendToDevice("GPS: " + String.valueOf(safe.gps.getLongi()) + ", " + String.valueOf(safe.gps.getLat()));
 					} else {
 						sendToDevice("Unknown");
 					}
