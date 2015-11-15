@@ -17,8 +17,8 @@ public class Scale extends Sensor
 	{
 		currentWeight = newWeight;
 	}
-	public String getInitial()
+	public float getInitial()
 	{
-		return String.valueOf(initial);
+		return initial;
 	}
 }

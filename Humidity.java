@@ -23,8 +23,8 @@ public class Humidity extends Sensor
 	{
 		this.hum = hum;
 	}
-	public String getInitial ()
+	public float getInitial ()
 	{
-		return String.valueOf(initial);
+		return initial;
 	}
 }

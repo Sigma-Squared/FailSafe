@@ -23,8 +23,8 @@ public class AirPressure extends Sensor
 	{
 		return airP;
 	}
-	public String getInitial ()
+	public float getInitial ()
 	{
-		return String.valueOf(initial);
+		return initial;
 	}
 }

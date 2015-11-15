@@ -22,7 +22,7 @@ public class TestSafe extends Applet implements ActionListener {
     private static final int VERT_PADDING = 6;
     private static final Color colourRed = new Color(255, 180, 180);
     private static final Color colourGreen = new Color(180, 255, 180);
-    private boolean onFire = false;
+    private boolean onFire = false, moving = false;
     
     private Safe safe;
     
@@ -48,7 +48,7 @@ public class TestSafe extends Applet implements ActionListener {
        
         (new Thread() {
         	  public void run() {
-        		  SafeServer.initSafeServer();
+        		  //SafeServer.initSafeServer();
         		  System.out.println("Connection success");
  		  
         		  testSafeLoop();
@@ -171,7 +171,7 @@ public class TestSafe extends Applet implements ActionListener {
         simButtons[9] = new Button("Neil Caffrey");
         simButtons[11] = new Button("Throw");
         simButtons[13] = new Button("Relocate");
-        simButtons[15] = new Button("Lock Down");
+        simButtons[15] = new Button("Toggle Lockdown");
         
         for (byte i = 0 ; i < simButtons.length ; i ++){
         	//setLabels[i].setAlignment(TextField.CENTER_ALIGNMENT);
@@ -179,6 +179,8 @@ public class TestSafe extends Applet implements ActionListener {
         		simButtons[i].setBackground(colourGreen);
         	else
         		simButtons[i].setBackground(new Color(153, 204, 255));
+        	if (i == 15)
+        		simButtons[i].setBackground(Color.GREEN);
             sim.add(simButtons[i]);
         }
     }
@@ -228,13 +230,15 @@ public class TestSafe extends Applet implements ActionListener {
     	for (;;) {
     		safe.monitor();
     		if (onFire) safe.therm.setExtTemp(safe.therm.getExtTemp()+5);
-    		refreshDataLabels();
+    		if (moving && safe.accel.getAccel() > 0) safe.accel.moving(safe.accel.getAccel()-0.5f);
+    		
+    		refreshDataLabels(false);
     		
     		try {Thread.sleep(1000);} catch (Exception e) {}
     	}
     }
     
-    public void refreshDataLabels(){
+    public void refreshDataLabels(boolean setLab){
     	dataLabels[0].setText("Temp (Int, Ext): " + String.valueOf(safe.therm.getIntTemp()) + ", " + String.valueOf(safe.therm.getExtTemp()) + " C");
         dataLabels[1].setText("Air Pressure: " + String.valueOf(safe.airPSensor.getAirPressure()) + " atm");
         dataLabels[2].setText("Humidity: " + String.valueOf(safe.humSensor.getHum()) + " %");
@@ -248,6 +252,7 @@ public class TestSafe extends Applet implements ActionListener {
         		dataLabels[i/2].setText("???");
         }
         
+        if (setLab){
         setLabels[0].setText(String.valueOf(safe.therm.getIntTemp()) + ", " + String.valueOf(safe.therm.getExtTemp()));
         setLabels[1].setText(String.valueOf(safe.airPSensor.getAirPressure()));
         setLabels[2].setText(String.valueOf(safe.humSensor.getHum()));
@@ -255,14 +260,19 @@ public class TestSafe extends Applet implements ActionListener {
         setLabels[4].setText(String.valueOf(safe.combo.getRPM()));
         setLabels[5].setText(String.valueOf(safe.accel.getAccel()));
         setLabels[6].setText(String.valueOf(safe.gps.getLongi()) + String.valueOf(", ") + String.valueOf(safe.gps.getLat()));
-    
-        for (byte i = 0 ; i < 2 ; i ++){
-        	if (locks[i]){
-            	lockLabels[i].setBackground(Color.GREEN);
-            } else {
-            	lockLabels[i].setBackground(Color.RED);
-            }
         }
+        	if (safe.getPhysicalLock()){
+            	lockLabels[0].setBackground(Color.GREEN);
+            } else {
+            	lockLabels[0].setBackground(Color.RED);
+            }
+        	
+        	if (safe.getElectricalLock()){
+            	lockLabels[1].setBackground(Color.GREEN);
+            } else {
+            	lockLabels[1].setBackground(Color.RED);
+            }
+  
     }
     
     public float stof(String value){
@@ -289,7 +299,7 @@ public class TestSafe extends Applet implements ActionListener {
     			safe.gps.setLongi(stof(gps.substring(0, gpsComma)));
     			safe.gps.setLat(stof(gps.substring(gpsComma+1)));
     		
-    			refreshDataLabels();
+    			refreshDataLabels(true);
     		} catch (NumberFormatException nfe){
     			showStatus("Parsing error has occurred.");
     		}
@@ -394,14 +404,36 @@ public class TestSafe extends Applet implements ActionListener {
     	else if (e.getSource() == simButtons[9]){
     		safe.combo.opening(0.2f);
     	}
-    	else if (e.getSource() == simButtons[11]){
+    	else if (e.getSource() == simButtons[11]){ //throw
+    		safe.accel.moving(3.5f);
+    	}
+    	else if (e.getSource() == simButtons[13]){ //relocate
     		safe.gps.setLongi(39.15386f);
     		safe.gps.setLongi(81.03381f);
     	}
-    }
-
-    //Sends data to the Control class
-    public void sendData() {
-        //Control.receiveInitParams();
+    	else if (e.getSource() == simButtons[15]){
+    		if (!safe.lockdown) {
+    			simButtons[15].setBackground(Color.RED);
+    			safe.initiateLockdown();
+    		} else {
+    			simButtons[15].setBackground(Color.GREEN);
+    			safe.endLockdown();
+    		}
+    	}
+    	
+    	else if (e.getSource() == simButtons[14]){
+    		safe.resetNotifications();
+    		safe.therm.setIntTemp(safe.therm.getInitial()[0]);
+    		safe.therm.setExtTemp(safe.therm.getInitial()[1]);
+    		safe.airPSensor.chngAirPressure(safe.airPSensor.getInitial());
+    		safe.humSensor.setHum(safe.humSensor.getInitial());
+    		safe.scale.setWeight(safe.scale.getInitial());
+    		safe.combo.opening(safe.combo.getInitial());
+    		safe.accel.moving(safe.accel.getInitial());
+    		safe.gps.setLongi(safe.gps.getInitial()[0]);
+    		safe.gps.setLat(safe.gps.getInitial()[1]);
+    		
+    		refreshDataLabels(true);
+    	}
     }
 }

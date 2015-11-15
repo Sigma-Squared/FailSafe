@@ -33,8 +33,8 @@ public class GPS extends Sensor
 	{
 		longi = newLongi;
 	}
-	public String getInitial ()
+	public float [] getInitial ()
 	{
-		return String.valueOf(initialLongi) + ", " + String.valueOf (initialLat);
+		return new float [] {initialLongi, initialLat};
 	}
 }

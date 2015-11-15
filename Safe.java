@@ -165,7 +165,7 @@ public class Safe
 				moved = true;
 			}
 		}
-		if (currentWeight != scale.getWeight() && accel.getAccel()==0 && scale.isActive())
+		if (currentWeight != scale.getWeight() && scale.isActive())
 		{
 			if (currentWeight > scale.getWeight())
 			{
@@ -335,7 +335,7 @@ public class Safe
 		comboSent = false;
 		scaleSent = false;
 		accelSensorSent = false;
-		pluggedIn = false;
+		pluggedIn = true;
 	}
 	public void unplug ()
 	{

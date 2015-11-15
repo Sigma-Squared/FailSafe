@@ -29,8 +29,8 @@ public class Accelerometer extends Sensor
 	{
 		accel = 0;
 	}
-	public String getInitial ()
+	public float getInitial ()
 	{
-		return "0";
+		return 0f;
 	}
 }

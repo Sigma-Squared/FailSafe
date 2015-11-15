@@ -48,11 +48,12 @@ public class SafeServer {
 		}
 	}
 	
-	private static void initServer() throws IOException{
+	private static void initServer() throws IOException, BindException{
 		System.out.println("Opening server port " + PORT);
 		serverSocket = new ServerSocket(PORT);
 		System.out.println("Awaiting connection...");
 		socket = serverSocket.accept();
+		socket.setReuseAddress(true);
 		System.out.println("Connection established");
 	}
 	
@@ -88,17 +89,17 @@ public class SafeServer {
 				String datum = (String) inStream.readObject();
 				System.out.println("Receiving: " +  datum);
 				if (datum.substring(0, 2).equals("GL")){
-					if (safe.lockdown)
+					if (safe.getElectricalLock())
 						sendToDevice("1");
 					else
 						sendToDevice("0");
 				} else if (datum.substring(0, 2).equals("GS")){
 					if (safe.getStatus() == 0)
-						sendToDevice("0");
+						sendToDevice("2");
 					else if (safe.getStatus() == 1)
 						sendToDevice("1");
 					else
-						sendToDevice("2");
+						sendToDevice("0");
 				} else if (datum.substring(0, 2).equals("GV")) {
 					switch (datum.charAt(2)){
 					case 1:
@@ -128,14 +129,14 @@ public class SafeServer {
 				
 				if (datum.substring(0, 2).equals("SL")){
 					if (datum.charAt(3) == '1')
-						safe.initiateLockdown();
+						safe.electronicLock = true;
 					else
-						safe.endLockdown();
+						safe.electronicLock = false;
 				} else if (datum.substring(0, 2).equals("SS")){
-					safe.changeSecSettings(datum.charAt(3));
+					safe.changeSecSettings(2-datum.charAt(3));
 				}
 				
-			} catch (IOException | ClassNotFoundException e){
+			} catch (Exception e){
 				System.err.println("Unable to receive data");
 				SafeServer.terminateConnections();
 				return;
@@ -145,7 +146,8 @@ public class SafeServer {
 	
 	public static void sendToDevice(String message){
 		if (!authenticated) {
-			System.err.println("Authentication error; Unable to send message");
+			System.err.println("Authentication error; Unable to send message:");
+			System.err.println(message);
 			return;
 		}
 		try {
@@ -159,10 +161,12 @@ public class SafeServer {
 	
 	public static void terminateConnections() {
 		try {
+			System.err.println("Terminating connections...");
 			inStream.close();
         	outStream.close();
         	socket.close();
-        	
+        	System.err.println("Connections terminated");
+        	System.err.println("Starting Server");
         	SafeServer.initSafeServer();
 		} catch (IOException e) {
 			System.err.println("Unable to terminate combinations");
