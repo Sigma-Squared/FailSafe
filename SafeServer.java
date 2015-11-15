@@ -43,7 +43,8 @@ public class SafeServer {
 					terminateConnections();
 					break;
 			}
-			e.printStackTrace(); 
+			//e.printStackTrace(); 
+			System.out.println("Session terminated");
 			System.exit(0);
 		}
 	}
@@ -87,7 +88,7 @@ public class SafeServer {
 		while (true) {
 			try {
 				String datum = (String) inStream.readObject();
-				System.out.println("Receiving: " +  datum);
+				System.out.println("Receiving message: " +  datum);
 				if (datum.substring(0, 2).equals("GL")){
 					if (safe.getElectricalLock())
 						sendToDevice("1");
@@ -101,30 +102,22 @@ public class SafeServer {
 					else
 						sendToDevice("0");
 				} else if (datum.substring(0, 2).equals("GV")) {
-					switch (datum.charAt(2)){
-					case 1:
-						sendToDevice(String.valueOf(safe.therm.currentIntTemp));
-						break;
-					case 2:
-						sendToDevice(String.valueOf(safe.therm.currentExtTemp));
-						break;
-					case 3:
-						sendToDevice(String.valueOf(safe.airPSensor.getAirPressure()));
-						break;
-					case 4:
-						sendToDevice(String.valueOf(safe.humSensor.getHum()));
-						break;
-					case 5:
-						sendToDevice(String.valueOf(safe.scale.getWeight()));
-						break;
-					case 6:
-						sendToDevice(String.valueOf(safe.gps.getLongi()) + ", " + 
-								String.valueOf(safe.gps.getLat()));
-						break;
-					default:
+					int value = Integer.parseInt(datum.substring(2));
+					if (value == 1){
+						sendToDevice("Int. Temp: " + String.valueOf(safe.therm.getIntTemp()));
+					} else if (value == 4){
+						sendToDevice("Ext. Temp: " + String.valueOf(safe.therm.getExtTemp()));
+					} else if (value == 2){
+						sendToDevice("Pressure: " + String.valueOf(safe.airPSensor.getAirPressure()));
+					} else if (value == 3){
+						sendToDevice("Humidity: " + String.valueOf(safe.humSensor.getHum()));
+					} else if (value == 5){
+						sendToDevice("Weight: " + String.valueOf(safe.scale.getWeight()));
+					} else if (value == 6){
+						sendToDevice("GPS: " + String.valueOf(safe.gps.getLongi()) + ", " + String.valueOf(safe.gps.getLat()));
+					} else {
 						sendToDevice("Unknown");
-						break;
-					}	
+					}
 				} 
 				
 				if (datum.substring(0, 2).equals("SL")){
@@ -133,7 +126,8 @@ public class SafeServer {
 					else
 						safe.electronicLock = false;
 				} else if (datum.substring(0, 2).equals("SS")){
-					safe.changeSecSettings(2-datum.charAt(3));
+					int value = Integer.parseInt(datum.substring(3));
+					safe.changeSecSettings(2-value);
 				}
 				
 			} catch (Exception e){
@@ -151,7 +145,7 @@ public class SafeServer {
 			return;
 		}
 		try {
-			System.out.println("Transferring: " + message);
+			System.out.println("Sending message: " + message);
 			outStream.writeObject(message);
 			outStream.flush();
 		} catch (IOException e) {
@@ -166,8 +160,8 @@ public class SafeServer {
         	outStream.close();
         	socket.close();
         	System.err.println("Connections terminated");
-        	System.err.println("Starting Server");
-        	SafeServer.initSafeServer();
+        	//System.err.println("Starting Server");
+        	//SafeServer.initSafeServer();
 		} catch (IOException e) {
 			System.err.println("Unable to terminate combinations");
 		}

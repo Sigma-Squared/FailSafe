@@ -14,10 +14,10 @@ public class TestSafe extends Applet implements ActionListener {
     private static Label[] lockLabels;
     private static TextField [] setLabels;
     private static Button setButton;
+    private static Label titleText;
     private static Button [] simButtons;
     
     private static boolean [] buttonStatus;
-    private static boolean [] locks;
     
     private static final int VERT_PADDING = 6;
     private static final Color colourRed = new Color(255, 180, 180);
@@ -48,7 +48,7 @@ public class TestSafe extends Applet implements ActionListener {
        
         (new Thread() {
         	  public void run() {
-        		  //SafeServer.initSafeServer();
+        		  SafeServer.initSafeServer();
         		  System.out.println("Connection success");
  		  
         		  testSafeLoop();
@@ -83,7 +83,8 @@ public class TestSafe extends Applet implements ActionListener {
     }
     
     private void initArrays(){
-        title.add(new Label("Fail Safe Monitor GUI"));
+    	titleText = new Label("Fail Safe Monitor (Fully Secure State)");
+        title.add(titleText);
         
         headerLabels = new Label [4];
         dataLabels = new Label [8];
@@ -92,7 +93,6 @@ public class TestSafe extends Applet implements ActionListener {
         lockLabels = new Label[2];
         
         buttonStatus = new boolean[17];
-        locks = new boolean[]{true, true};
     }
     
     private void initHeader(){
@@ -150,7 +150,7 @@ public class TestSafe extends Applet implements ActionListener {
         }
         
         setButton = new Button("Set Values");
-        setButton.setBackground(new Color(200, 255, 200));
+        setButton.setBackground(new Color(153, 204, 255));
         set.add(setButton);
     }
     
@@ -230,7 +230,10 @@ public class TestSafe extends Applet implements ActionListener {
     	for (;;) {
     		safe.monitor();
     		if (onFire) safe.therm.setExtTemp(safe.therm.getExtTemp()+5);
-    		if (moving && safe.accel.getAccel() > 0) safe.accel.moving(safe.accel.getAccel()-0.5f);
+
+    		if (safe.accel.getAccel() > 0) {
+    			safe.accel.moving(safe.accel.getAccel()-0.5f);
+    		}
     		
     		refreshDataLabels(false);
     		
@@ -261,18 +264,31 @@ public class TestSafe extends Applet implements ActionListener {
         setLabels[5].setText(String.valueOf(safe.accel.getAccel()));
         setLabels[6].setText(String.valueOf(safe.gps.getLongi()) + String.valueOf(", ") + String.valueOf(safe.gps.getLat()));
         }
-        	if (safe.getPhysicalLock()){
+        if (safe.getPhysicalLock()){
             	lockLabels[0].setBackground(Color.GREEN);
-            } else {
+        } else {
             	lockLabels[0].setBackground(Color.RED);
-            }
+        }
         	
-        	if (safe.getElectricalLock()){
-            	lockLabels[1].setBackground(Color.GREEN);
-            } else {
-            	lockLabels[1].setBackground(Color.RED);
-            }
-  
+        if (safe.getElectricalLock()){
+            lockLabels[1].setBackground(Color.GREEN);
+        } else {
+            lockLabels[1].setBackground(Color.RED);
+        }
+        
+        switch (safe.getStatus()){
+        case 0:
+        	titleText.setText("Fail Safe Monitor (Fully Secure State)");
+        	break;
+        case 1:
+        	titleText.setText("Fail Safe Monitor (Secure State)");
+        	break;
+        case 2:
+        	titleText.setText("Fail Safe Monitor (Unsecure State)");
+        	break;
+        default:
+        		break;
+        }
     }
     
     public float stof(String value){
@@ -422,7 +438,6 @@ public class TestSafe extends Applet implements ActionListener {
     	}
     	
     	else if (e.getSource() == simButtons[14]){
-    		safe.resetNotifications();
     		safe.therm.setIntTemp(safe.therm.getInitial()[0]);
     		safe.therm.setExtTemp(safe.therm.getInitial()[1]);
     		safe.airPSensor.chngAirPressure(safe.airPSensor.getInitial());
@@ -432,6 +447,8 @@ public class TestSafe extends Applet implements ActionListener {
     		safe.accel.moving(safe.accel.getInitial());
     		safe.gps.setLongi(safe.gps.getInitial()[0]);
     		safe.gps.setLat(safe.gps.getInitial()[1]);
+    		
+    		safe.resetNotifications();
     		
     		refreshDataLabels(true);
     	}
