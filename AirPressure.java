@@ -1,3 +1,5 @@
+package safepackage;
+
 public class AirPressure extends Sensor
 {
 	protected float airP; //stored in atm

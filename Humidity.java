@@ -1,3 +1,5 @@
+package safepackage;
+
 public class Humidity extends Sensor
 {
 	protected float hum; // percent water

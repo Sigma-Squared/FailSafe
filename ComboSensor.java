@@ -1,3 +1,5 @@
+package safepackage;
+
 public class ComboSensor extends Sensor
 {
 	protected float RPM,speedMin;

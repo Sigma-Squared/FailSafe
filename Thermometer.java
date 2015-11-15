@@ -1,3 +1,4 @@
+package safepackage;
 
 public class Thermometer extends Sensor
 {

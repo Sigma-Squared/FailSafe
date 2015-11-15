@@ -1,3 +1,5 @@
+package safepackage;
+
 import java.io.*;
 import java.net.*;
 
@@ -8,12 +10,12 @@ public class SafeServer {
     private static ServerSocket serverSocket;
     private static Socket socket;
     
-    private static final int PORT = 6969;
+    private static final int PORT = 2222;
     private static final String AUTH_MSG = "M3C2015";
     
     public static boolean authenticated;
 
-	public SafeServer() {
+	public static void initSafeServer() {
 		byte errorCode = 0;
 		
 		try {
@@ -38,6 +40,7 @@ public class SafeServer {
 			    	authenticated = false;
 			    	break;
 				default:
+					terminateConnections();
 					break;
 			}
 			e.printStackTrace(); 
@@ -56,6 +59,7 @@ public class SafeServer {
 	private static void establishStreams() throws IOException {
 		System.out.println("Enabling output steam");
 		outStream = new ObjectOutputStream(socket.getOutputStream()); 
+		outStream.flush();
 		System.out.println("Enabling input steam");
 		inStream = new ObjectInputStream(socket.getInputStream()); 
 	}
@@ -64,20 +68,86 @@ public class SafeServer {
 		String datum = (String) inStream.readObject();
 		System.out.println("Authentication: " +  datum);
 		authenticated = datum.equals(AUTH_MSG);
+		if (authenticated) {
+			System.out.println("Authentication accepted");
+			sendToDevice(AUTH_MSG);
+		} else {
+			System.err.println("Authentication failed.  Closing connections");
+			terminateConnections();
+		}
 	}
 	
-	public static String receiveFromDevice()  {
-	    try {
-	    	String datum = (String) inStream.readObject();
-	    	System.out.println("Receiving: " +  datum);
-	    	return datum;
-	    } catch (IOException | ClassNotFoundException e){
-	    	System.err.println("Unable to receive data");
-	    	return null;
-	    }
+	public static void receiveFromDevice(Safe safe){
+		if (!authenticated) {
+			System.err.println("Device not authenticated");
+			return;
+		}
+		
+		while (true) {
+			try {
+				String datum = (String) inStream.readObject();
+				System.out.println("Receiving: " +  datum);
+				if (datum.substring(0, 2).equals("GL")){
+					if (safe.lockdown)
+						sendToDevice("1");
+					else
+						sendToDevice("0");
+				} else if (datum.substring(0, 2).equals("GS")){
+					if (safe.getStatus() == 0)
+						sendToDevice("0");
+					else if (safe.getStatus() == 1)
+						sendToDevice("1");
+					else
+						sendToDevice("2");
+				} else if (datum.substring(0, 2).equals("GV")) {
+					switch (datum.charAt(2)){
+					case 1:
+						sendToDevice(String.valueOf(safe.therm.currentIntTemp));
+						break;
+					case 2:
+						sendToDevice(String.valueOf(safe.therm.currentExtTemp));
+						break;
+					case 3:
+						sendToDevice(String.valueOf(safe.airPSensor.getAirPressure()));
+						break;
+					case 4:
+						sendToDevice(String.valueOf(safe.humSensor.getHum()));
+						break;
+					case 5:
+						sendToDevice(String.valueOf(safe.scale.getWeight()));
+						break;
+					case 6:
+						sendToDevice(String.valueOf(safe.gps.getLongi()) + ", " + 
+								String.valueOf(safe.gps.getLat()));
+						break;
+					default:
+						sendToDevice("Unknown");
+						break;
+					}	
+				} 
+				
+				if (datum.substring(0, 2).equals("SL")){
+					if (datum.charAt(3) == '1')
+						safe.initiateLockdown();
+					else
+						safe.endLockdown();
+				} else if (datum.substring(0, 2).equals("SS")){
+					safe.changeSecSettings(datum.charAt(3));
+				}
+				
+			} catch (IOException | ClassNotFoundException e){
+				System.err.println("Unable to receive data");
+				SafeServer.terminateConnections();
+				return;
+			}
+		}
 	}
 	
-	public static void sendToDevice(String message) {
+	public static void sendToDevice(String message){
+		if (!authenticated) {
+			System.err.println("Authentication error; Unable to send message");
+			return;
+		}
 		try {
 			System.out.println("Transferring: " + message);
 			outStream.writeObject(message);
@@ -92,6 +162,8 @@ public class SafeServer {
 			inStream.close();
         	outStream.close();
         	socket.close();
+        	
+        	SafeServer.initSafeServer();
 		} catch (IOException e) {
 			System.err.println("Unable to terminate combinations");
 		}

@@ -1,3 +1,5 @@
+package safepackage;
+
 public class Safe 
 {
 	protected boolean electronicLock, physicalLock,moving,connected,open,lockdown,pluggedIn;
@@ -37,6 +39,23 @@ public class Safe
 		{
 			recentTemp[i] = 0;
 		}
+	}
+	public int getStatus ()
+	{
+		int s=0;
+		if (full == true)
+		{
+			s=0;
+		}
+		else if (secure == true)
+		{
+			s=1;
+		}
+		else if (unsecure == true)
+		{
+			s=2;
+		}
+		return s;
 	}
 	public void monitor()
 	{
@@ -265,8 +284,8 @@ public class Safe
 	public void initiateLockdown ()
 	{
 		lockdown = true;
-		electronicLock = false;
-		physicalLock = false;
+		electronicLock = true;
+		physicalLock = true;
 		if (full == true)
 		{
 		SafeServer.sendToDevice("WARN:Lockdown Initiated");
@@ -347,23 +366,24 @@ public class Safe
 	}
 	public void changeSecSettings(int n)
 	{
-		if (n==0)
-		{
-			full=true;
-			secure = false;
-			unsecure = false;
-		}
 		if (n==1)
 		{
 			full=false;
 			secure = true;
 			unsecure = false;
 		}
-		if (n==2)
+		else if (n==2)
 		{
 			full=false;
 			secure = false;
 			unsecure = true;
 		}
+		else
+		{
+			full=true;
+			secure = false;
+			unsecure = false;
+		}
+		
 	}
 }

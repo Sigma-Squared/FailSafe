@@ -1,3 +1,5 @@
+package safepackage;
+
 public class GPS extends Sensor
 {
 	float longi,lat;

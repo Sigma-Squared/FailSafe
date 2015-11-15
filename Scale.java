@@ -1,3 +1,5 @@
+package safepackage;
+
 public class Scale extends Sensor
 {
 	float currentWeight;

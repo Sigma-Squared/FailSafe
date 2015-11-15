@@ -1,3 +1,5 @@
+package safepackage;
+
 public class Accelerometer extends Sensor
 {
 	protected float accel, accelLimit;
