@@ -2,16 +2,20 @@ package safepackage;
 
 public class GPS extends Sensor
 {
-	float longi,lat;
+	float longi,lat,initialLongi,initialLat;
 	public GPS ()
 	{
 		longi = (float) 43.262285;
 		lat = (float) -79.920341;
+		initialLongi = (float) 43.262285;
+		initialLat = (float) -79.920341;
 	}
 	public GPS (float longi,float lat)
 	{
 		this.longi = longi;
 		this.lat = longi;
+		initialLongi = longi;
+		initialLat = lat;
 	}
 	public float getLat ()
 	{
@@ -28,5 +32,9 @@ public class GPS extends Sensor
 	public void setLongi (float newLongi)
 	{
 		longi = newLongi;
+	}
+	public String getInitial ()
+	{
+		return String.valueOf(initialLongi) + ", " + String.valueOf (initialLat);
 	}
 }

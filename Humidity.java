@@ -2,16 +2,18 @@ package safepackage;
 
 public class Humidity extends Sensor
 {
-	protected float hum; // percent water
+	protected float hum,initial; // percent water
 	public Humidity ()
 	{
 		super();
 		hum = 70;
+		initial = 70;
 	}
 	public Humidity (float hum)
 	{
 		super();
 		this.hum = hum;
+		initial = hum;
 	}
 	public float getHum ()
 	{
@@ -20,5 +22,9 @@ public class Humidity extends Sensor
 	public void setHum (float hum)
 	{
 		this.hum = hum;
+	}
+	public String getInitial ()
+	{
+		return String.valueOf(initial);
 	}
 }

@@ -35,11 +35,9 @@ public class Thermometer extends Sensor
 	{
 		currentExtTemp = temp;
 	}
-	public float[] getInitial ()
+	public String getInitial ()
 	{
-		float [] initial = new float [2];
-		initial[0] = initialIntTemp;
-		initial[1] = initialExtTemp;
+		String initial = String.valueOf(initialIntTemp) + ", " + String.valueOf(initialExtTemp);
 		return initial;
 	}
 }

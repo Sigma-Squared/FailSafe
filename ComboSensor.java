@@ -25,4 +25,8 @@ public class ComboSensor extends Sensor
 	{
 		this.RPM = RPM; 
 	}
+	public String getInitial ()
+	{
+		return "0";
+	}
 }

@@ -2,11 +2,12 @@ package safepackage;
 
 public class Scale extends Sensor
 {
-	float currentWeight;
+	float currentWeight,initial;
 	public Scale (float weight)
 	{
 		super();
 		currentWeight = weight;
+		initial = weight;
 	}
 	public float getWeight ()
 	{
@@ -15,5 +16,9 @@ public class Scale extends Sensor
 	public void setWeight (float newWeight)
 	{
 		currentWeight = newWeight;
+	}
+	public String getInitial()
+	{
+		return String.valueOf(initial);
 	}
 }

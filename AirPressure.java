@@ -2,16 +2,18 @@ package safepackage;
 
 public class AirPressure extends Sensor
 {
-	protected float airP; //stored in atm
+	protected float airP,initial; //stored in atm
 	public AirPressure ()
 	{
 		super();
 		airP = 1;
+		initial = 1;
 	}
 	public AirPressure (float pressure)
 	{
 		super();
 		airP = pressure;
+		initial = pressure;
 	}
 	public void chngAirPressure (float pressure)
 	{
@@ -20,5 +22,9 @@ public class AirPressure extends Sensor
 	public float getAirPressure ()
 	{
 		return airP;
+	}
+	public String getInitial ()
+	{
+		return String.valueOf(initial);
 	}
 }
