@@ -1,18 +1,22 @@
 
 public class Thermometer extends Sensor
 {
-	protected float currentIntTemp, currentExtTemp;
+	protected float currentIntTemp, currentExtTemp,initialIntTemp,initialExtTemp;
 	public Thermometer()
 	{
 		super();
 		this.currentIntTemp = 20;
 		this.currentExtTemp = 20;
+		this.initialIntTemp = 20;
+		this.initialExtTemp = 20;
 	}
 	public Thermometer(float currentIntTemp,float currentExtTemp)
 	{
 		super();
 		this.currentIntTemp = currentIntTemp;
 		this.currentExtTemp = currentExtTemp;
+		this.initialIntTemp = currentIntTemp;
+		this.initialExtTemp = currentExtTemp;
 	}
 	public float getIntTemp ()
 	{
@@ -29,5 +33,12 @@ public class Thermometer extends Sensor
 	public void setExtTemp (float temp)
 	{
 		currentExtTemp = temp;
+	}
+	public float[] getInitial ()
+	{
+		float [] initial = new float [2];
+		initial[0] = initialIntTemp;
+		initial[1] = initialExtTemp;
+		return initial;
 	}
 }

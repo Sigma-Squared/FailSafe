@@ -2,7 +2,8 @@ public class Safe
 {
 	protected boolean electronicLock, physicalLock,moving,connected,open,lockdown,pluggedIn;
 	boolean tempInSent,tempExtSent,airPSent,humSent,comboRPMSent,currentWeightSent,moved,accelSent,RPMSent,pluggedInSent;
-	boolean thermSent,airPSensorSent,humSensorSent,comboSent,scaleSent,accelSensorSent;
+	boolean thermSent,airPSensorSent,humSensorSent,comboSent,scaleSent,accelSensorSent,gpsSent;
+	boolean full,secure,unsecure;
 	protected float tempIn,tempExt,airP,hum,comboRPM,currentWeight,tempChange,sum,longi,lat;
 	protected int cycleCnt;
 	protected int batteryLevel = 604800;
@@ -17,9 +18,10 @@ public class Safe
 
 	public Safe ()
 	{
+		full = true;
 		connected = true;
-		electronicLock = false;
-		physicalLock = false;
+		electronicLock = true;
+		physicalLock = true;
 		moving = false;
 		pluggedIn = true;
 		tempChange = 0;
@@ -46,7 +48,10 @@ public class Safe
 		{
 			if (pluggedInSent == false)
 			{
-				SafeServer.sendToDevice ("WARN:The safe has been unplugged\n" + batteryLevel/3600 + " hours left");
+				if (full == true)
+				{
+					SafeServer.sendToDevice ("WARN:The safe has been unplugged\n" + batteryLevel/3600 + " hours left");
+				}
 				pluggedInSent = true;
 			}
 			batteryLevel--;
@@ -55,7 +60,10 @@ public class Safe
 		{
 			if (tempInSent==false)
 			{
-				SafeServer.sendToDevice("WARN:Change in internal temperature.");
+				if (full == true)
+				{
+					SafeServer.sendToDevice("WARN:Change in internal temperature.");
+				}
 				tempInSent = true;
 			}
 			tempIn = therm.getIntTemp();
@@ -73,7 +81,10 @@ public class Safe
 			{
 				if (tempExtSent == false)
 				{
+					if (full == true)
+					{
 					SafeServer.sendToDevice("WARN:Abnormal external temperature influx.");
+					}
 					tempExtSent = true;
 				}
 			}
@@ -83,7 +94,10 @@ public class Safe
 		{
 			if (accelSent==false)
 			{
+				if (full == true)
+				{
 				SafeServer.sendToDevice("WARN:Safe is being handled.");
+				}
 				accelSent = true;
 			}
 		}
@@ -91,7 +105,10 @@ public class Safe
 		{
 			if (RPMSent == false)
 			{
+				if (full == true)
+				{
 				SafeServer.sendToDevice ("WARN:Physical unlock taking longer than normal.");
+				}
 				RPMSent = true;
 			}
 		}
@@ -99,7 +116,10 @@ public class Safe
 		{
 			if (humSent == false)
 			{
+				if (full == true)
+				{
 				SafeServer.sendToDevice ("WARN:Safe humidity has changed.");
+				}
 				humSent = true;
 			}
 			hum = humSensor.getHum ();
@@ -108,7 +128,10 @@ public class Safe
 		{
 			if (airPSent == false)
 			{
+				if (full == true)
+				{
 				SafeServer.sendToDevice ("WARN:Internal air pressure has changed");
+				}
 				airPSent = true;
 			}
 		}
@@ -116,7 +139,10 @@ public class Safe
 		{
 			if (moved == false)
 			{
+				if (full == true)
+				{
 				SafeServer.sendToDevice ("DATA:The safe has been moved");
+				}
 				moved = true;
 			}
 		}
@@ -126,7 +152,10 @@ public class Safe
 			{
 				if (currentWeightSent == false)
 				{
+					if (full == true)
+					{
 					SafeServer.sendToDevice("WARN:Contents have been added to the safe.");
+					}
 					currentWeightSent = true;
 				}
 			}
@@ -134,7 +163,10 @@ public class Safe
 			{
 				if (currentWeightSent == false)
 				{
+					if (full == true)
+					{
 					SafeServer.sendToDevice("WARN:Contents have been removed from the safe.");
+					}
 					currentWeightSent = true;
 				}
 			}
@@ -144,7 +176,10 @@ public class Safe
 		{
 			if (thermSent==false)
 			{
+				if (full == true)
+				{
 				SafeServer.sendToDevice("WARN:Thermometer Offline");
+				}
 				thermSent=true;
 			}
 		}
@@ -152,7 +187,10 @@ public class Safe
 		{
 			if (airPSensorSent==false)
 			{
+				if (full == true)
+				{
 				SafeServer.sendToDevice("WARN:Air Pressure Sensor Offline");
+				}
 				airPSensorSent=true;
 			}
 		}
@@ -160,7 +198,10 @@ public class Safe
 		{
 			if (humSensorSent==false)
 			{
+				if (full == true)
+				{
 				SafeServer.sendToDevice("WARN:Humidity Sensor Offline");
+				}
 				humSensorSent=true;
 			}
 		}
@@ -168,7 +209,10 @@ public class Safe
 		{
 			if (comboSent==false)
 			{
+				if (full == true)
+				{
 				SafeServer.sendToDevice("WARN:Combination Lock Sensor Offline");
+				}
 				comboSent=true;
 			}
 		}
@@ -176,7 +220,10 @@ public class Safe
 		{
 			if (scaleSent==false)
 			{
+				if (full == true)
+				{
 				SafeServer.sendToDevice("WARN:Internal Scale is Offline");
+				}
 				scaleSent=true;
 			}
 		}
@@ -184,8 +231,22 @@ public class Safe
 		{
 			if (accelSensorSent==false)
 			{
+				if (full == true)
+				{
 				SafeServer.sendToDevice("WARN:Accelerometer Offline");
+				}
 				accelSensorSent=true;
+			}
+		}
+		if (!gps.isActive())
+		{
+			if (gpsSent ==false)
+			{
+				if (full == true)
+				{
+				SafeServer.sendToDevice("WARN:GPS Offline");
+				}
+				gpsSent = true;
 			}
 		}
 		cycleCnt++;
@@ -198,7 +259,7 @@ public class Safe
 	{
 		if (lockdown == false)
 		{
-			electronicLock = true;
+			electronicLock = false;
 		}
 	}
 	public void initiateLockdown ()
@@ -206,7 +267,10 @@ public class Safe
 		lockdown = true;
 		electronicLock = false;
 		physicalLock = false;
+		if (full == true)
+		{
 		SafeServer.sendToDevice("WARN:Lockdown Initiated");
+		}
 
 	}
 	public void endLockdown ()
@@ -221,12 +285,15 @@ public class Safe
 		}
 		else
 		{
+			if (full == true)
+			{
 			SafeServer.sendToDevice ("WARN:Can not initiate incineration while safe is open.");
+			}
 		}
 	}
 	public void physicalUnlock ()
 	{
-		physicalLock = true;
+		physicalLock = false;
 	}
 	public void lostConnection ()
 	{
@@ -257,13 +324,46 @@ public class Safe
 	}
 	public void openSafe ()
 	{
-		if (physicalLock == true && electronicLock == true)
+		if (physicalLock == false && electronicLock == false)
 		{
-			open =true;
+			open = true;
+			if (full == true || secure == true)
+			{
+			SafeServer.sendToDevice("WARN:The Safe has been opened.");
+			}
 		}
 	}
 	public void doorClose ()
 	{
 		physicalLock = false;
+	}
+	public boolean getElectricalLock ()
+	{
+		return electronicLock;
+	}
+	public boolean getPhysicalLock ()
+	{
+		return physicalLock;
+	}
+	public void changeSecSettings(int n)
+	{
+		if (n==0)
+		{
+			full=true;
+			secure = false;
+			unsecure = false;
+		}
+		if (n==1)
+		{
+			full=false;
+			secure = true;
+			unsecure = false;
+		}
+		if (n==2)
+		{
+			full=false;
+			secure = false;
+			unsecure = true;
+		}
 	}
 }
